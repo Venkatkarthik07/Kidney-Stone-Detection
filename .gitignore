@@ -1,0 +1,35 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Django / Python
+db.sqlite3
+*.log
+local_settings.py
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+Kidney/.venv/
+
+# IDE files
+.vscode/
+.idea/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Secrets and credentials
+kaggle.json
+
+# Large datasets / ZIP files
+*.zip
+kidney-stone-images.zip
+
+# System files
+Thumbs.db
+.DS_Store
