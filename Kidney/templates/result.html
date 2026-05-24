@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Kidney Stone Detection Result</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Plus+Jakarta+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0B0F19;
+            --card-bg: rgba(20, 26, 44, 0.6);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --primary-glow: #3B82F6;
+            --accent-glow: #10B981;
+            --text-main: #F3F4F6;
+            --text-secondary: #9CA3AF;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        /* Decorative background glow circles */
+        .glow-circle {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(150px);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .glow-1 {
+            width: 400px;
+            height: 400px;
+            background: rgba(59, 130, 246, 0.12);
+            top: 10%;
+            left: 5%;
+        }
+
+        .glow-2 {
+            width: 450px;
+            height: 450px;
+            background: rgba(16, 185, 129, 0.08);
+            bottom: 10%;
+            right: 5%;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            padding: 0 2rem;
+            z-index: 10;
+            position: relative;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FFFFFF 0%, #A7F3D0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.03em;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #A7F3D0;
+            padding: 0.4rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .content-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 2.5rem;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .image-box {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .image-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .image-wrapper {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            aspect-ratio: 1;
+        }
+
+        .image-wrapper img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+
+        .image-wrapper:hover img {
+            transform: scale(1.02);
+        }
+
+        .stats-panel {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stats-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #3B82F6;
+        }
+
+        .stats-list {
+            list-style: none;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+        }
+
+        .stats-item {
+            background: rgba(255, 255, 255, 0.01);
+            border-left: 3px solid var(--primary-glow);
+            padding: 0.75rem 1rem;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.95rem;
+            color: var(--text-main);
+        }
+
+        .actions {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.85rem 2rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-primary {
+            background: var(--primary-glow);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: #2563EB;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        footer {
+            margin-top: 3rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="glow-circle glow-1"></div>
+    <div class="glow-circle glow-2"></div>
+
+    <div class="container">
+        <header>
+            <div class="badge">Analysis Success</div>
+            <h1>YOLOv8 Detection Results</h1>
+        </header>
+
+        <div class="content-card">
+            <div class="comparison-grid">
+                <!-- Original Image -->
+                <div class="image-box">
+                    <div class="image-title">
+                        <span>Original Scan</span>
+                        <span style="color: #6B7280; font-size: 0.8rem; font-weight: normal;">Uploaded</span>
+                    </div>
+                    <div class="image-wrapper">
+                        <img src="{{ uploaded_image_url }}" alt="Uploaded Original Scan">
+                    </div>
+                </div>
+
+                <!-- Detected Image -->
+                <div class="image-box">
+                    <div class="image-title">
+                        <span>AI Annotated Scan</span>
+                        <span style="color: var(--accent-glow); font-size: 0.85rem; font-weight: bold;">YOLOv8 active</span>
+                    </div>
+                    <div class="image-wrapper">
+                        <img src="{{ result_image_url }}" alt="YOLOv8 Detection Result">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats/Insight section -->
+            <div class="stats-panel">
+                <div class="stats-title">Diagnostic Metrics & Stats</div>
+                <ul class="stats-list">
+                    {% for stat in detection_stats %}
+                        <li class="stats-item"><strong>Status:</strong> {{ stat }}</li>
+                    {% endfor %}
+                    <li class="stats-item"><strong>Algorithm:</strong> YOLOv8 Nano Segment/Detect Model</li>
+                    <li class="stats-item"><strong>Inference Device:</strong> CPU / Autodetect Device</li>
+                </ul>
+            </div>
+
+            <div class="actions">
+                <a href="/" class="btn btn-primary">Run Another Analysis</a>
+                <a href="https://github.com/Venkatkarthik07/Kidney-Stone-Detection" target="_blank" class="btn btn-secondary">View Code on GitHub</a>
+            </div>
+        </div>
+
+        <footer>
+            © 2026 Kidney Stone Detection Portal. Powered by Ultralytics YOLOv8.
+        </footer>
+    </div>
+</body>
+</html>

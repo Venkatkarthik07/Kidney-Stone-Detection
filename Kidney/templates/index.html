@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Kidney Stone Detection Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Plus+Jakarta+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0B0F19;
+            --card-bg: rgba(20, 26, 44, 0.6);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --primary-glow: #3B82F6;
+            --accent-glow: #60A5FA;
+            --text-main: #F3F4F6;
+            --text-secondary: #9CA3AF;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Decorative background glow circles */
+        .glow-circle {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(150px);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .glow-1 {
+            width: 400px;
+            height: 400px;
+            background: rgba(59, 130, 246, 0.15);
+            top: 10%;
+            left: 10%;
+        }
+
+        .glow-2 {
+            width: 450px;
+            height: 450px;
+            background: rgba(99, 102, 241, 0.12);
+            bottom: 10%;
+            right: 10%;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 720px;
+            padding: 2rem;
+            z-index: 10;
+            position: relative;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FFFFFF 0%, #93C5FD 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.03em;
+        }
+
+        p.subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            font-weight: 300;
+        }
+
+        .upload-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 3rem;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .upload-card:hover {
+            border-color: rgba(59, 130, 246, 0.3);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 
+                        0 0 30px rgba(59, 130, 246, 0.1);
+        }
+
+        .dropzone {
+            border: 2px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        .dropzone:hover, .dropzone.dragover {
+            border-color: var(--primary-glow);
+            background: rgba(59, 130, 246, 0.04);
+        }
+
+        .upload-icon {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 1.5rem;
+            color: var(--primary-glow);
+            transition: transform 0.3s ease;
+        }
+
+        .dropzone:hover .upload-icon {
+            transform: translateY(-5px);
+        }
+
+        .dropzone h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .dropzone p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .flash-messages {
+            margin-bottom: 1.5rem;
+            list-style: none;
+        }
+
+        .flash-error {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #FCA5A5;
+            padding: 1rem;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            text-align: center;
+        }
+
+        /* Loading Spinner */
+        .loading-overlay {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(11, 15, 25, 0.9);
+            border-radius: 24px;
+            z-index: 100;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(59, 130, 246, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary-glow);
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 1.5rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: var(--text-main);
+            letter-spacing: 0.05em;
+        }
+
+        footer {
+            margin-top: 3rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="glow-circle glow-1"></div>
+    <div class="glow-circle glow-2"></div>
+
+    <div class="container">
+        <header>
+            <h1>Kidney Stone AI Detection</h1>
+            <p class="subtitle">Upload medical images (PNG/JPG or DICOM) for rapid YOLOv8-powered analysis.</p>
+        </header>
+
+        {% with messages = get_flashed_messages(category_filter=["error"]) %}
+            {% if messages %}
+                <ul class="flash-messages">
+                    {% for msg in messages %}
+                        <li class="flash-error">{{ msg }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <div class="upload-card">
+            <form id="upload-form" action="/" method="POST" enctype="multipart/form-data">
+                <div class="dropzone" id="dropzone">
+                    <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                    </svg>
+                    <h3>Select or Drag Image</h3>
+                    <p>Supports PNG, JPG, JPEG or medical DICOM (.dcm) files</p>
+                    <input type="file" name="image" id="image" class="file-input" accept=".png,.jpg,.jpeg,.dcm">
+                </div>
+            </form>
+
+            <div class="loading-overlay" id="loading-overlay">
+                <div class="spinner"></div>
+                <div class="loading-text">RUNNING YOLO DETECTION...</div>
+            </div>
+        </div>
+
+        <footer>
+            © 2026 Kidney Stone Detection Portal. Powered by Ultralytics YOLOv8.
+        </footer>
+    </div>
+
+    <script>
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('image');
+        const form = document.getElementById('upload-form');
+        const loading = document.getElementById('loading-overlay');
+
+        dropzone.addEventListener('click', () => fileInput.click());
+
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzone.classList.add('dragover');
+        });
+
+        dropzone.addEventListener('dragleave', () => {
+            dropzone.classList.remove('dragover');
+        });
+
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('dragover');
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                triggerSubmit();
+            }
+        });
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length) {
+                triggerSubmit();
+            }
+        });
+
+        function triggerSubmit() {
+            loading.style.display = 'flex';
+            form.submit();
+        }
+    </script>
+</body>
+</html>
